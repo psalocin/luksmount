@@ -9,16 +9,16 @@ mapper=$mapperdir/$cryptname
 mountpoint=$3
 
 if [ "$(ls $mapperdir | grep $cryptname)" != "$cryptname" ];	then
-		echo "Encrypted Device Detected!"
-		sudo cryptsetup luksOpen $device $cryptname
-		wait
-		echo "Mounting encrypted device on $mountpoint"
-		sudo mount $mapper $mountpoint
+	echo "Encrypted Device Detected!"
+	sudo cryptsetup luksOpen $device $cryptname
+	wait
+	echo "Mounting encrypted device on $mountpoint"
+	sudo mount $mapper $mountpoint
 fi
 
 LVM="LVM"
 if [ "$(sudo mount $mapper $mountpoint) | grep $LVM" == "$LVM" ];    then
-        vgcreate --mknodes
-        vgscan -av
+	vgcreate --mknodes
+	vgscan -av
 fi
     
