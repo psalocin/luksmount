@@ -10,9 +10,9 @@ mapper=/dev/mapper/data
 mountpoint=/media/data
 
 if [ "$(ls $mapperdir | grep $cryptname)" = "$cryptname" ];	then
-		echo "Unmounting encrypted filesystem at $mountpoint"
-		sudo umount $mountpoint
-		wait
-		echo "Closing encrypted device \"$cryptname\""
-		sudo cryptsetup remove $cryptname
+	echo "Unmounting encrypted filesystem at $mountpoint"
+	sudo umount $mountpoint
+	wait
+	echo "Closing encrypted device \"$cryptname\""
+	sudo cryptsetup remove $cryptname
 fi
