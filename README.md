@@ -1,7 +1,7 @@
 luksmount
 =========
 
-Simple scripts for mountin and unmounting luks volumes
+Mount and umount scripts for encrypted LUKS volume.
 
 This software is still early in development. Use at your own risk.
 
