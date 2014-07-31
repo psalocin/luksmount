@@ -1,42 +1,61 @@
 #!/bin/bash
-
 #
 # Nic Peterson | nicpeterson.com
 #
 # luksmount - a set of scripts for opening and closing, mounting and unmounting LUKS volumes
 #
 
-device=$1
-cryptname=$2
-mapperdir=/dev/mapper
-mapper=$mapperdir/$cryptname
-mountpoint=$3
-NAME="mount.luks"
-
+# Just in case users are unfamiliar
 function usage {
-    echo "Usage: '$NAME /device <name> /mount/point'"
-    echo "Options:"
-    echo -e "\tm (mount) -> $NAME m filename.img /mount/point"
+    echo ""
+    echo "Usage:    $NAME <device/image_file> <mount_point>"
+    echo ""
+    echo "Options:  ro (read-only mount)"
+    echo ""
 }
 
-if [ -z "$1" -o -z "$2" -o -z "$3" ]; then
+# Check for inputs
+if [ -z "$1" -o -z "$2" ]; then
     usage
     exit 1
 fi
 
-if [ "$(ls $mapperdir | grep $cryptname)" != "$cryptname" ];	then
+# Check for bad inputs
+if [ -n "$df | grep $1" ]; then
+    echo "Mount point already in use."
+    exit 1
+fi
+
+# Check for read only option
+if [ $1 = "ro" ]; then
+    device=$2
+    mountpoint=$3
+    echo "Using read only mode."
+else
+    device=$1
+    mountpoint=$2
+    echo "Using read/write mode."
+fi
+
+# Assign other variables
+id="luks"$RANDOM
+mapper=/dev/mapper/$id
+NAME="mount.luks"
+
+if [ "$(ls $mapperdir | grep $id)" != "$id" ];	then
 	echo "Encrypted Device Detected!"
-	sudo cryptsetup luksOpen $device $cryptname
+	sudo cryptsetup create $id $device
 	wait
+    # Do a scan for LVM, cause neckbeards love LVM.
 	sudo vgscan --mknodes
     sudo vgchange -ay
     wait
-	echo "Mounting encrypted device on $mountpoint"
-	sudo mount $mapper/talisman-root $mountpoint
-    sudo mount $mapper/talisman-home $mountpoint/home
+    # Mount encrypted device
+	echo "Mounting encrypted device $id on $mountpoint"
+    if [ $1 = "ro" ]; then
+        sudo mount -o ro /dev/mapper/$id $mountpoint
+    else
+	    sudo mount /dev/mapper/$id $mountpoint
+    fi
 fi
 
-LVM="LVM"
-#if [ "$(sudo mount $mapper $mountpoint) | grep $LVM" == "$LVM" ];    then
-#fi
-    

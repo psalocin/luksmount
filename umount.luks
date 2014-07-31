@@ -1,18 +1,47 @@
 #!/bin/bash
 
-# Opens and mounts luks encrypted device if not already opened.
+# Closes and unmounts luks encrypted device if not already closed.
 
-#blkid=UUID=ca25971d-67a7-4261-ad27-a4567d425d62
-blkid=$1
-cryptname=data
+# Just in case users are unfamiliar                                                                               
+function usage {
+    echo ""
+    echo "Usage:    $NAME <id> <mountpoint>"
+    echo ""
+}
+
+id=$1
+mountpoint=$2
 mapperdir=/dev/mapper
-mapper=/dev/mapper/data
-mountpoint=/media/data
+NAME="umount.luks"
 
-if [ "$(ls $mapperdir | grep $cryptname)" = "$cryptname" ];	then
+# Check for inputs
+if [ -z "$1" -o -z "$2" ]; then
+    usage
+    exit 1
+fi
+
+# Check for bad inputs
+mounts=$(mount | grep "luks")
+if [ -z "$mounts" ]; then
+    echo "error: there are no encrypted devices mounted"
+    exit 1
+fi
+
+if [ -z "$(lsblk | grep $1)" ]; then
+    echo "error: mapped device not found"
+    echo ""
+    echo "Is it one of these?"
+    echo "$(lsblk | grep "luks")"
+    echo ""
+    echo "Usage:    $NAME <id> <mountpoint>"
+    echo ""
+fi
+
+if [ "$(ls $mapperdir | grep $id)" = "$id" ];	then
 	echo "Unmounting encrypted filesystem at $mountpoint"
 	sudo umount $mountpoint
 	wait
-	echo "Closing encrypted device \"$cryptname\""
-	sudo cryptsetup remove $cryptname
+	echo "Closing encrypted device \"$id\""
+	sudo cryptsetup remove $id
 fi
+
