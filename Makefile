@@ -2,9 +2,9 @@
 all:
 
 install:
-	cp luks.mount /usr/local/bin
-	cp luks.umount /usr/local/bin
+	cp mount.luks /usr/local/bin
+	cp umount.luks /usr/local/bin
 
 uninstall:
-	rm /usr/local/bin/luks.mount
-	rm /usr/local/bin/luks.umount
+	rm /usr/local/bin/mount.luks
+	rm /usr/local/bin/umount.luks
